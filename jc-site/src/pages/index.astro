@@ -1,0 +1,212 @@
+---
+import { getCollection } from 'astro:content';
+import Base from '../layouts/Base.astro';
+import Icon from '../components/Icon.astro';
+import { SOCIALS, SUPPORT, EMAIL, JENUIX_URL, isReady } from '../config';
+
+const socials = SOCIALS.filter((s) => isReady(s.url));
+const support = SUPPORT.filter((s) => isReady(s.url));
+
+const posts = (await getCollection('blog', ({ data }) => !data.draft))
+  .sort((a, b) => (b.data.date?.getTime() ?? 0) - (a.data.date?.getTime() ?? 0))
+  .slice(0, 4);
+
+// Proposed topics only, NOT published articles. Shown until real posts exist.
+const planned = [
+  { t: "Ways I'd Use AI to Make Work Easier (Not Lazier)", c: 'Work Smarter' },
+  { t: "Will AI Take Our Jobs? Let's Talk About It.", c: 'AI & Jobs' },
+  { t: 'If AI Can Code, What Should Computer Science Students Learn?', c: 'Learn & Build' },
+  { t: 'From Ideas to Impact: Turning Creative Thoughts into Real Projects', c: 'Learn & Build' },
+];
+
+const art: Record<string, string> = {
+  'Work Smarter': 'linear-gradient(135deg,#1b3a8a,#0a1b4d)',
+  'AI & Jobs': 'linear-gradient(135deg,#4c1d95,#0b1b4f)',
+  'Learn & Build': 'linear-gradient(135deg,#0e5a8a,#07173a)',
+};
+
+const topics = [
+  { i: 'zap', t: 'Work Smarter, Not Harder', d: 'Use AI to automate repetitive tasks, find better ideas and save time.', href: '/blog?category=Work%20Smarter' },
+  { i: 'cpu', t: 'AI & the Future of Work', d: 'Thoughtful conversations about jobs, skills and what comes next.', href: '/blog?category=AI%20%26%20Jobs' },
+  { i: 'lightbulb', t: 'Create & Build', d: 'From ideas to real projects, using AI, design and code.', href: '/blog?category=Learn%20%26%20Build' },
+  { i: 'book', t: 'Learn & Grow', d: 'Practical tips, resources and lessons from my learning journey.', href: '/blog' },
+];
+
+const fmt = (d: Date) => d.toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' });
+const readTime = (body = '') => Math.max(1, Math.ceil(body.trim().split(/\s+/).length / 200));
+---
+<Base>
+  <!-- HERO -->
+  <section class="hero">
+    <div class="wrap hero-grid">
+      <div class="reveal">
+        <span class="hi">Hi, I'm</span>
+        <h1>Agbaeze Jennifer Chioma</h1>
+        <ul class="roles">
+          <li>Developer</li>
+          <li>Creative Thinker</li>
+          <li>Builder</li>
+        </ul>
+        <p class="lead">
+          I am a Computer Science student who builds for the web and studies how artificial
+          intelligence is changing the way we learn, work and create. This is my space to share
+          ideas, document what I am learning, and explore how technology and creativity can be used
+          to solve real problems.
+        </p>
+        <div class="actions">
+          <a class="btn btn-primary" href="/blog">Read My Blog <Icon name="arrow-right" size={18} /></a>
+          <a class="btn btn-ghost" href="/#collaborate">Let's Collaborate</a>
+        </div>
+        {(socials.length > 0 || EMAIL) && (
+          <div class="socials">
+            {socials.map((s) => (
+              <a href={s.url} target="_blank" rel="noopener" aria-label={s.label}><Icon name={s.icon} size={19} /></a>
+            ))}
+            {EMAIL && <a href={`mailto:${EMAIL}`} aria-label="Email"><Icon name="mail" size={19} /></a>}
+          </div>
+        )}
+      </div>
+
+      <div class="portrait-wrap reveal">
+        <div class="portrait">
+          <div class="mono" aria-hidden="true">JC</div>
+          <img src="/jc-photo.jpg" alt="Portrait of Agbaeze Jennifer Chioma" width="640" height="704"
+               onerror="this.style.display='none'" />
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- AI & FUTURE OF WORK -->
+  <section class="light" id="ai">
+    <div class="wrap ai-grid">
+      <div class="reveal">
+        <span class="eyebrow">AI &amp; the future of work</span>
+        <h2>AI isn't here to replace you. It's here to help you <em>do more.</em></h2>
+        <p class="muted">
+          I explore how everyday work can be made easier with AI, how it can spark creativity and open
+          new opportunities, without losing what makes us human.
+        </p>
+        <a class="btn btn-primary" href="/blog">Explore the Blog <Icon name="arrow-right" size={18} /></a>
+      </div>
+      <div class="topics">
+        {topics.map((t) => (
+          <a class="topic reveal" href={t.href}>
+            <span class="ico"><Icon name={t.i} size={22} /></span>
+            <h3>{t.t}</h3>
+            <p>{t.d}</p>
+            <span class="go">Learn more <Icon name="arrow-right" size={15} /></span>
+          </a>
+        ))}
+      </div>
+    </div>
+  </section>
+
+  <!-- BLOG -->
+  <section class="blog-bg" id="blog">
+    <div class="wrap">
+      <div class="sec-head reveal">
+        <div>
+          <h2 style="margin-bottom:10px">Latest Blog Posts</h2>
+          <p class="muted">Thoughts, guides and lessons from my journey with AI, tech and creativity.</p>
+        </div>
+        <a class="link-arrow" href="/blog">View All Posts <Icon name="arrow-right" size={16} /></a>
+      </div>
+      <div class="cards">
+        {posts.length > 0
+          ? posts.map((p, i) => (
+              <a class="card reveal" href={`/blog/${p.id}`}>
+                <div class="thumb" style={`background:${art[p.data.category]}`}>
+                  <img src={p.data.image ?? `/blog/thumb-${i + 1}.jpg`} alt={p.data.imageAlt ?? ''} loading="lazy" onerror="this.style.display='none'" />
+                </div>
+                <div class="card-body">
+                  <span class="tag">{p.data.category}</span>
+                  <h3>{p.data.title}</h3>
+                  <p>{p.data.summary}</p>
+                  <div class="meta">
+                    {p.data.date && <span><Icon name="calendar" size={14} />{fmt(p.data.date)}</span>}
+                    <span><Icon name="clock" size={14} />{readTime(p.body)} min read</span>
+                  </div>
+                </div>
+              </a>
+            ))
+          : planned.map((p, i) => (
+              <div class="card reveal">
+                <div class="thumb" style={`background:${art[p.c]}`}>
+                  <span class="thumb-label">{p.c}</span>
+                  <img src={`/blog/thumb-${i + 1}.jpg`} alt="" loading="lazy" onerror="this.style.display='none'" />
+                </div>
+                <div class="card-body">
+                  <span class="tag">{p.c}</span>
+                  <h3>{p.t}</h3>
+                  <p>Coming soon. This is a topic I plan to write about.</p>
+                  <div class="meta"><span>Planned</span></div>
+                </div>
+              </div>
+            ))}
+      </div>
+    </div>
+  </section>
+
+  <!-- JENUIX CREATIVES -->
+  <section id="studio" style="padding:0 0 96px;background:var(--bg)">
+    <div class="wrap">
+      <div class="panel reveal">
+        <div>
+          <span class="eyebrow">My Creative Studio</span>
+          <h2>Jenuix Creatives</h2>
+          <p class="lead">
+            Need a professional website, branding, graphics, or automation services for your
+            business? Explore Jenuix Creatives, my creative technology studio.
+          </p>
+        </div>
+        {isReady(JENUIX_URL)
+          ? <a class="btn btn-primary" href={JENUIX_URL}>Explore Jenuix Creatives ↗</a>
+          : <span class="btn btn-soon">Link coming soon</span>}
+      </div>
+    </div>
+  </section>
+
+  <!-- SUPPORT + COLLABORATE -->
+  <section class="duo-bg">
+    <div class="wrap duo">
+      <div class="box reveal" id="support">
+        <span class="eyebrow">Fuel the journey</span>
+        <h2>Support My Work</h2>
+        <p class="muted">
+          If something I've shared has helped you learn, think differently, or create something useful,
+          you can support my journey. It helps me keep learning, experimenting, building and sharing.
+          It's always voluntary, and reading is more than enough.
+        </p>
+        {support.length > 0
+          ? <div class="pay-grid">
+              {support.map((s) => (
+                <a class="pay" href={s.url} target="_blank" rel="noopener">
+                  <Icon name={s.icon} size={20} />{s.label}
+                </a>
+              ))}
+            </div>
+          : <p class="muted"><em>Support options are being set up.</em></p>}
+        <p class="thanks">Thank you for being here.</p>
+      </div>
+
+      <div class="box reveal" id="collaborate">
+        <span class="eyebrow">Open to ideas</span>
+        <h2>Let's Collaborate</h2>
+        <p class="muted">
+          I'm always open to working with developers, designers, writers, founders, students and other
+          creative minds. Whether it's a project, a collaboration, guest writing or simply a conversation,
+          I'd love to hear from you.
+        </p>
+        <div class="actions" style="margin:22px 0 0">
+          {EMAIL
+            ? <a class="btn btn-primary" href={`mailto:${EMAIL}`}>Get in Touch <Icon name="arrow-right" size={18} /></a>
+            : <span class="btn btn-soon">Email coming soon</span>}
+        </div>
+        <div class="chips">
+          <span>Web Dev</span><span>Design</span><span>Content</span><span>Partnerships</span>
+        </div>
+      </div>
+    </div>
+  </section>
+</Base>

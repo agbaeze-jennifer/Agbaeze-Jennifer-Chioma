@@ -1,0 +1,16 @@
+---
+import { SITE } from '../config';
+const path = Astro.url.pathname;
+---
+<header class="header">
+  <div class="wrap">
+    <a class="brand" href="/" aria-label={`${SITE.name}, home`}>JC</a>
+    <nav class="nav" id="nav" aria-label="Main">
+      <a href="/" aria-current={path === '/' ? 'page' : undefined}>Home</a>
+      <a href="/blog" aria-current={path.startsWith('/blog') ? 'page' : undefined}>Blog</a>
+      <a href="/#collaborate">Contact</a>
+      <a class="btn" href="/#collaborate">Let's Collaborate →</a>
+    </nav>
+    <button class="menu-btn" id="menu-btn" aria-label="Open menu" aria-controls="nav" aria-expanded="false">☰</button>
+  </div>
+</header>
